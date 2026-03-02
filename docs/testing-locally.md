@@ -43,6 +43,8 @@ CORS_ORIGINS=http://localhost:5173
 DEBUG=true
 ```
 
+See [configuration.md](configuration.md) for all available settings and production setup.
+
 ---
 
 ## 3. Start the App
