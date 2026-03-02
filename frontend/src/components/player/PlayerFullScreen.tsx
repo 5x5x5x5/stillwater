@@ -6,7 +6,7 @@ import { useBellInterval } from '../../hooks/useBellInterval';
 import { useMediaSession } from '../../hooks/useMediaSession';
 import { ProgressBar } from './ProgressBar';
 import { AmbientMixer } from './AmbientMixer';
-import { progressApi } from '../../api/progress';
+import { useProgressStore } from '../../stores/progressStore';
 
 const BELL_OPTIONS = [
   { label: 'Off', value: 0 },
@@ -63,19 +63,16 @@ export function PlayerFullScreen() {
     setVolume,
     setBell,
   } = usePlayerStore();
+  const logMeditation = useProgressStore((s) => s.logMeditation);
 
-  const handleComplete = async () => {
+  const handleComplete = () => {
     if (!currentSession) return;
-    try {
-      await progressApi.logMeditation({
-        session_id: currentSession.id,
-        duration_seconds: currentSession.duration_seconds,
-        completed: true,
-        session_type: currentSession.category,
-      });
-    } catch {
-      // Non-critical
-    }
+    logMeditation({
+      session_id: currentSession.id,
+      duration_seconds: currentSession.duration_seconds,
+      completed: true,
+      session_type: currentSession.category,
+    });
   };
 
   const { seekTo } = useAudioEngine({ onComplete: handleComplete });

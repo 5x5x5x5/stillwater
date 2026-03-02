@@ -6,45 +6,37 @@ How meditation logs drive streak calculation, badge evaluation, and the progress
 
 ```mermaid
 sequenceDiagram
-    participant C as Client
-    participant R as Progress Router
-    participant S as Progress Service
-    participant DB as Database
+    participant C as Component
+    participant PS as progressStore
+    participant ST as storage.ts
+    participant LS as localStorage
 
-    C->>R: POST /api/progress/log<br/>{session_id, duration_seconds, completed, session_type}
-    R->>S: log_meditation(db, user_id, data)
+    C->>PS: logMeditation({session_id, duration_seconds, completed, session_type})
+    PS->>ST: appendLog(entry)
 
-    S->>DB: INSERT meditation_logs
-    DB-->>S: MeditationLog created
+    ST->>ST: Generate id + created_at
+    ST->>LS: Append to sw_logs
 
-    S->>S: update_streak(db, user_id)
-    S->>DB: SELECT streaks WHERE user_id
-    DB-->>S: Streak record (or None)
+    ST->>ST: recalculateStreak()
+    ST->>LS: Read sw_streak
+    ST->>ST: Evaluate streak logic
+    ST->>LS: Write updated sw_streak
 
-    alt No streak record
-        S->>DB: INSERT streaks (current=1, longest=1, last=today)
-    else Has streak record
-        S->>S: Evaluate streak logic
-        S->>DB: UPDATE streaks
-    end
-
-    S->>S: check_badges(db, user_id)
-    S->>DB: SELECT all badges
-    S->>DB: SELECT user_badges WHERE user_id
-    S->>DB: COUNT meditation_logs (total_sessions)
-    S->>DB: SELECT current_streak
-    S->>DB: COUNT DISTINCT session_type (categories)
+    ST->>ST: checkAndAwardBadges()
+    ST->>LS: Read sw_logs, sw_streak, sw_earned_badges
+    ST->>ST: Evaluate each unearned badge
 
     loop Each unearned badge
-        S->>S: Evaluate requirement
+        ST->>ST: Check requirement
         alt Requirement met
-            S->>DB: INSERT user_badges
+            ST->>LS: Add badge ID to sw_earned_badges
         end
     end
 
-    S->>DB: COMMIT all changes
-    S-->>R: MeditationLog
-    R-->>C: 201 Created
+    ST-->>PS: appendLog returns
+    PS->>ST: Re-read summary / streak / heatmap / badges
+    PS->>PS: Update store state
+    C->>C: UI re-renders
 ```
 
 ## Streak Calculation State Machine
@@ -53,7 +45,7 @@ sequenceDiagram
 stateDiagram-v2
     [*] --> NoRecord: First meditation ever
 
-    NoRecord --> Active: Create streak<br/>current=1, longest=1, last=today
+    NoRecord --> Active: Create streak\ncurrent=1, longest=1, last=today
 
     state Active {
         [*] --> Evaluate
@@ -72,7 +64,7 @@ stateDiagram-v2
     Reset --> UpdateDate
 
     CheckRecord --> UpdateDate
-    UpdateDate --> [*]: Streak saved
+    UpdateDate --> [*]: Streak saved to sw_streak
 ```
 
 ### Streak Examples
@@ -91,50 +83,54 @@ stateDiagram-v2
 
 ```mermaid
 flowchart TD
-    START[check_badges called] --> FETCH_ALL[Fetch all badge definitions]
-    FETCH_ALL --> FETCH_EARNED[Fetch user's earned badge IDs]
-    FETCH_EARNED --> LOOP{For each unearned badge}
+    START[checkAndAwardBadges called] --> FETCH_EARNED[Read sw_earned_badges]
+    FETCH_EARNED --> METRICS[Compute metrics from sw_logs + sw_streak]
+    METRICS --> LOOP{For each unearned badge}
 
     LOOP --> TYPE{requirement_type?}
 
-    TYPE -->|total_sessions| TS[Count completed MeditationLogs]
+    TYPE -->|total_sessions| TS[Count completed logs]
     TYPE -->|streak| SK[Read current_streak]
-    TYPE -->|categories| CT[Count distinct session_types]
+    TYPE -->|categories| CT[Count distinct session_types in completed logs]
 
     TS --> CMP{value >= requirement_value?}
     SK --> CMP
     CT --> CMP
 
-    CMP -->|Yes| AWARD[INSERT user_badges row]
+    CMP -->|Yes| AWARD[Add badge ID to sw_earned_badges]
     CMP -->|No| SKIP[Skip badge]
 
     AWARD --> LOOP
     SKIP --> LOOP
 
-    LOOP -->|Done| COMMIT[Commit transaction]
+    LOOP -->|Done| WRITE[Write updated sw_earned_badges to localStorage]
 ```
 
 ### Badge Definitions (6 types)
 
-| Badge | Type | Threshold | Description |
-|-------|------|-----------|-------------|
-| Novice Meditator | `total_sessions` | 1 | Complete first meditation |
-| Dedicated Practitioner | `total_sessions` | 10 | Complete 10 meditations |
-| Meditation Master | `total_sessions` | 50 | Complete 50 meditations |
-| Streak Starter | `streak` | 3 | 3-day streak |
-| Streak Champion | `streak` | 7 | 7-day streak |
-| Explorer | `categories` | 3 | Try 3 different categories |
+| ID | Name | Type | Threshold | Description |
+|----|------|------|-----------|-------------|
+| `first_step` | First Step | `total_sessions` | 1 | Complete your very first session |
+| `dedicated` | Dedicated | `total_sessions` | 50 | Complete 50 sessions |
+| `century` | Century | `total_sessions` | 100 | Complete 100 sessions |
+| `week_warrior` | Week Warrior | `streak` | 7 | 7-day streak |
+| `marathon` | Marathon | `streak` | 30 | 30-day streak |
+| `explorer` | Explorer | `categories` | 3 | Try 3 different session types |
 
 ## Heatmap Data Generation
 
 ```mermaid
 flowchart LR
-    QUERY["SELECT date(created_at), COUNT(*)<br/>FROM meditation_logs<br/>WHERE user_id = ?<br/>AND created_at >= today - 365d<br/>GROUP BY date(created_at)<br/>ORDER BY date ASC"]
+    LOGS["Filter sw_logs:\ncompleted = true\ncreated_at >= today − 365d"]
 
-    QUERY --> DATA["[{date: '2026-01-15', count: 2},<br/> {date: '2026-01-16', count: 1},<br/> ...]"]
+    LOGS --> GROUP["Group by date (YYYY-MM-DD)\nCount entries per day"]
+
+    GROUP --> DATA["[{date: '2026-01-15', count: 2},\n {date: '2026-01-16', count: 1},\n ...]"]
 
     DATA --> HEATMAP[Heatmap Component]
 ```
+
+Days with zero sessions are excluded. The Heatmap component treats missing dates as count=0.
 
 ## Frontend Progress Dashboard
 
@@ -144,14 +140,14 @@ flowchart TD
         MOUNT[Mount] --> FETCH[progressStore.fetchAll]
     end
 
-    FETCH --> PAR["Parallel API calls"]
+    FETCH --> ST[storage.ts]
 
-    PAR --> S1["GET /summary"]
-    PAR --> S2["GET /streak"]
-    PAR --> S3["GET /heatmap"]
-    PAR --> S4["GET /badges"]
+    ST --> S1["getProgressSummary()"]
+    ST --> S2["getStreak()"]
+    ST --> S3["getHeatmap()"]
+    ST --> S4["getBadges()"]
 
-    S1 --> STORE[progressStore]
+    S1 --> STORE[progressStore state]
     S2 --> STORE
     S3 --> STORE
     S4 --> STORE

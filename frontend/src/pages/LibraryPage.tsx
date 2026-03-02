@@ -163,8 +163,8 @@ export default function LibraryPage() {
             >
               <option value="" className="bg-navy-dark">All tags</option>
               {tags.map((tag) => (
-                <option key={tag.id} value={tag.name} className="bg-navy-dark">
-                  {tag.name}
+                <option key={tag} value={tag} className="bg-navy-dark">
+                  {tag}
                 </option>
               ))}
             </select>

@@ -163,10 +163,10 @@ export default function SessionDetailPage() {
           <div className="flex flex-wrap gap-2 mb-5">
             {selectedSession.tags.map((tag) => (
               <span
-                key={tag.id}
+                key={tag}
                 className="text-xs px-3 py-1 rounded-full bg-white/8 border border-white/10 text-offwhite/60"
               >
-                {tag.name}
+                {tag}
               </span>
             ))}
           </div>

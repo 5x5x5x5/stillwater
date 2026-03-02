@@ -1,6 +1,14 @@
 import { create } from 'zustand';
-import { progressApi } from '../api/progress';
-import type { ProgressSummary, StreakData, HeatmapEntry, Badge } from '../api/progress';
+import {
+  getProgressSummary,
+  getStreak,
+  getHeatmap,
+  getBadges,
+  appendLog,
+} from '../lib/storage';
+import type { ProgressSummary, StreakData, HeatmapEntry, Badge, MeditationLog } from '../lib/storage';
+
+export type { ProgressSummary, StreakData, HeatmapEntry, Badge };
 
 interface ProgressState {
   summary: ProgressSummary | null;
@@ -10,11 +18,12 @@ interface ProgressState {
   isLoading: boolean;
   error: string | null;
 
-  fetchAll: () => Promise<void>;
-  fetchSummary: () => Promise<void>;
-  fetchStreak: () => Promise<void>;
-  fetchHeatmap: () => Promise<void>;
-  fetchBadges: () => Promise<void>;
+  fetchAll: () => void;
+  fetchSummary: () => void;
+  fetchStreak: () => void;
+  fetchHeatmap: () => void;
+  fetchBadges: () => void;
+  logMeditation: (entry: Omit<MeditationLog, 'id' | 'created_at'>) => void;
   clearError: () => void;
 }
 
@@ -26,58 +35,29 @@ export const useProgressStore = create<ProgressState>((set) => ({
   isLoading: false,
   error: null,
 
-  fetchAll: async () => {
-    set({ isLoading: true, error: null });
-    try {
-      const [summary, streak, heatmap, badges] = await Promise.all([
-        progressApi.getSummary(),
-        progressApi.getStreak(),
-        progressApi.getHeatmap(),
-        progressApi.getBadges(),
-      ]);
-      set({ summary, streak, heatmap, badges });
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to load progress';
-      set({ error: message });
-    } finally {
-      set({ isLoading: false });
-    }
+  fetchAll: () => {
+    set({
+      summary: getProgressSummary(),
+      streak: getStreak(),
+      heatmap: getHeatmap(),
+      badges: getBadges(),
+    });
   },
 
-  fetchSummary: async () => {
-    try {
-      const summary = await progressApi.getSummary();
-      set({ summary });
-    } catch {
-      // Non-critical individual fetch
-    }
-  },
+  fetchSummary: () => set({ summary: getProgressSummary() }),
+  fetchStreak: () => set({ streak: getStreak() }),
+  fetchHeatmap: () => set({ heatmap: getHeatmap() }),
+  fetchBadges: () => set({ badges: getBadges() }),
 
-  fetchStreak: async () => {
-    try {
-      const streak = await progressApi.getStreak();
-      set({ streak });
-    } catch {
-      // Non-critical individual fetch
-    }
-  },
-
-  fetchHeatmap: async () => {
-    try {
-      const heatmap = await progressApi.getHeatmap();
-      set({ heatmap });
-    } catch {
-      // Non-critical individual fetch
-    }
-  },
-
-  fetchBadges: async () => {
-    try {
-      const badges = await progressApi.getBadges();
-      set({ badges });
-    } catch {
-      // Non-critical individual fetch
-    }
+  logMeditation: (entry) => {
+    appendLog(entry);
+    // Refresh all derived state after logging.
+    set({
+      summary: getProgressSummary(),
+      streak: getStreak(),
+      heatmap: getHeatmap(),
+      badges: getBadges(),
+    });
   },
 
   clearError: () => set({ error: null }),

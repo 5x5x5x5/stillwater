@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { Session } from '../api/sessions';
+import type { Session } from './sessionStore';
 
 export interface AmbientSound {
   id: string;

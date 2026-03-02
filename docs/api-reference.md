@@ -1,143 +1,161 @@
-# API Reference
+# Storage API Reference
 
-Base URL: `/api`
-
----
-
-## Health
-
-| Method | Path | Auth | Response |
-|--------|------|------|----------|
-| GET | `/api/health` | No | `{ status: "ok", app: "stillwater" }` |
+All persistent data operations go through `frontend/src/lib/storage.ts`. This is the public API surface that replaces the HTTP API layer.
 
 ---
 
-## Auth (`/api/auth`)
+## Types
 
-| Method | Path | Auth | Description |
-|--------|------|------|-------------|
-| POST | `/api/auth/register` | No | Create account |
-| POST | `/api/auth/login` | No | Get JWT token |
-| GET | `/api/auth/me` | Yes | Current user profile |
-| GET | `/api/auth/me/preferences` | Yes | Get preferences |
-| PUT | `/api/auth/me/preferences` | Yes | Update preferences |
+```ts
+interface Preferences {
+  preferred_duration: number;
+  bell_sound: string;
+  ambient_default: string;
+}
 
-**Register** — `POST /api/auth/register`
-```json
-// Request
-{ "email": "user@example.com", "password": "min8chars", "display_name": "User" }
+interface MeditationLog {
+  id: string;              // crypto.randomUUID()
+  session_id: number | null;
+  duration_seconds: number;
+  completed: boolean;
+  session_type: string;    // session category, e.g. 'guided', 'breathing'
+  created_at: string;      // ISO date string
+}
 
-// Response (201)
-{ "id": "uuid", "email": "user@example.com", "display_name": "User", "is_active": true, "created_at": "..." }
-```
+interface StreakData {
+  current_streak: number;
+  longest_streak: number;
+  last_meditation_date: string | null;  // YYYY-MM-DD
+}
 
-**Login** — `POST /api/auth/login`
+interface HeatmapEntry {
+  date: string;   // YYYY-MM-DD
+  count: number;
+}
 
-Accepts JSON (`{ "email", "password" }`) or form-encoded (`username` + `password` for Swagger UI).
+interface Badge {
+  id: string;
+  name: string;
+  description: string;
+  icon: string;
+  requirement_type: 'total_sessions' | 'streak' | 'categories';
+  requirement_value: number;
+  earned: boolean;
+}
 
-```json
-// Response (200)
-{ "access_token": "eyJ...", "token_type": "bearer" }
-```
-
-**Update Preferences** — `PUT /api/auth/me/preferences`
-```json
-// Request (all fields optional)
-{ "preferred_duration": 15, "theme": "dark", "bell_sound": "tibetan", "ambient_default": "rain" }
-
-// Response (200)
-{ "id": "uuid", "user_id": "uuid", "preferred_duration": 15, "theme": "dark", "bell_sound": "tibetan", "ambient_default": "rain", "created_at": "...", "updated_at": "..." }
-```
-
----
-
-## Sessions (`/api/sessions`)
-
-| Method | Path | Auth | Description |
-|--------|------|------|-------------|
-| GET | `/api/sessions` | No | List sessions (paginated, filterable) |
-| GET | `/api/sessions/daily` | No | Today's daily pick |
-| GET | `/api/sessions/{id}` | No | Single session detail |
-| GET | `/api/sessions/categories` | No | List distinct categories |
-| GET | `/api/sessions/tags` | No | List all tags |
-
-**List Sessions** — `GET /api/sessions`
-
-Query parameters (all optional):
-
-| Param | Type | Description |
-|-------|------|-------------|
-| `category` | string | Exact match (`guided`, `sleep_story`, `soundscape`) |
-| `subcategory` | string | Exact match (`stress`, `focus`, `anxiety`, `sleep`, `morning`, `evening`) |
-| `tag` | string | Filter by tag name |
-| `min_duration` | int | Minimum duration in seconds |
-| `max_duration` | int | Maximum duration in seconds |
-| `search` | string | Substring search in title and description |
-| `page` | int | Page number, 1-based (default: 1) |
-| `per_page` | int | Results per page, 1-100 (default: 20) |
-
-```json
-// Response
-{
-  "items": [
-    {
-      "id": "uuid", "title": "...", "description": "...",
-      "category": "guided", "subcategory": "stress",
-      "audio_url": "...", "image_url": "...",
-      "duration_seconds": 300, "instructor": "Sarah Chen",
-      "is_daily_pick": true,
-      "tags": [{ "id": "uuid", "name": "beginner" }],
-      "created_at": "..."
-    }
-  ],
-  "total": 13, "page": 1, "per_page": 20
+interface ProgressSummary {
+  total_sessions: number;
+  total_minutes: number;
+  current_streak: number;
+  longest_streak: number;
+  badges_earned: number;
 }
 ```
 
 ---
 
-## Progress (`/api/progress`)
+## Identity
 
-All endpoints require authentication.
-
-| Method | Path | Auth | Description |
-|--------|------|------|-------------|
-| POST | `/api/progress/log` | Yes | Log a completed meditation |
-| GET | `/api/progress/summary` | Yes | Aggregate stats |
-| GET | `/api/progress/streak` | Yes | Streak info |
-| GET | `/api/progress/heatmap` | Yes | Daily counts (365 days) |
-| GET | `/api/progress/badges` | Yes | All badges with earned status |
-
-**Log Meditation** — `POST /api/progress/log`
-
-Automatically updates the user's streak and checks for newly earned badges.
-
-```json
-// Request
-{ "session_id": "uuid-or-null", "duration_seconds": 300, "completed": true, "session_type": "guided" }
-
-// Response (201)
-{ "id": "uuid", "user_id": "uuid", "session_id": "...", "duration_seconds": 300, "completed": true, "session_type": "guided", "created_at": "...", "updated_at": "..." }
+```ts
+getDisplayName(): string | null
 ```
+Reads `sw_display_name` from localStorage. Returns `null` if not set (first visit).
 
-**Summary** — `GET /api/progress/summary`
-```json
-{ "total_sessions": 42, "total_minutes": 315, "current_streak": 7, "longest_streak": 14, "badges_earned": 3 }
+```ts
+saveDisplayName(name: string): void
 ```
-
-**Heatmap** — `GET /api/progress/heatmap`
-```json
-[{ "date": "2026-02-28", "count": 2 }, { "date": "2026-03-01", "count": 1 }]
-```
-Days with zero sessions are omitted.
-
-**Badges** — `GET /api/progress/badges`
-```json
-[{ "id": "uuid", "name": "First Step", "description": "Complete your first session.", "icon": "🌱", "requirement_type": "total_sessions", "requirement_value": 1, "earned": true }]
-```
+Persists the user's display name to `sw_display_name`.
 
 ---
 
-## Interactive API Explorer
+## Preferences
 
-The backend exposes a Swagger UI at **http://localhost:8000/docs** when running locally. Click **Authorize** and enter your credentials to try endpoints interactively.
+```ts
+getPreferences(): Preferences
+```
+Returns stored preferences, or defaults (`preferred_duration: 10`, `bell_sound: 'singing_bowl'`, `ambient_default: 'none'`).
+
+```ts
+savePreferences(prefs: Partial<Preferences>): Preferences
+```
+Merges `prefs` into current preferences, persists, and returns the merged result.
+
+---
+
+## Meditation Logs
+
+```ts
+getMeditationLogs(): MeditationLog[]
+```
+Returns the full `sw_logs` array (all time, not filtered).
+
+```ts
+appendLog(entry: Omit<MeditationLog, 'id' | 'created_at'>): MeditationLog
+```
+Creates a new log entry with a generated `id` and `created_at`, appends it to `sw_logs`, then automatically calls `recalculateStreak()` and `checkAndAwardBadges()`. Returns the created log.
+
+---
+
+## Streak
+
+```ts
+getStreak(): StreakData
+```
+Returns current `sw_streak` state.
+
+```ts
+recalculateStreak(): StreakData
+```
+Implements the streak state machine after a new log:
+- `last == today` → no change (idempotent)
+- `last == yesterday` → `current_streak += 1`
+- `last < yesterday` or `null` → `current_streak = 1`
+
+Updates `longest_streak` if current exceeds it. Persists and returns updated state.
+
+---
+
+## Badges
+
+```ts
+checkAndAwardBadges(): void
+```
+Evaluates all 6 badge definitions against current logs and streak. Adds newly qualified badge IDs to `sw_earned_badges`. No-ops for already-earned badges.
+
+```ts
+getBadges(): Badge[]
+```
+Returns all 6 badge definitions with `earned: true/false` based on `sw_earned_badges`.
+
+### Badge Definitions
+
+| ID | Name | Type | Threshold |
+|----|------|------|-----------|
+| `first_step` | First Step | `total_sessions` | 1 |
+| `dedicated` | Dedicated | `total_sessions` | 50 |
+| `century` | Century | `total_sessions` | 100 |
+| `week_warrior` | Week Warrior | `streak` | 7 |
+| `marathon` | Marathon | `streak` | 30 |
+| `explorer` | Explorer | `categories` | 3 |
+
+---
+
+## Heatmap
+
+```ts
+getHeatmap(): HeatmapEntry[]
+```
+Returns daily completed-session counts for the past 365 days, sorted ascending by date. Days with zero sessions are omitted.
+
+---
+
+## Progress Summary
+
+```ts
+getProgressSummary(): ProgressSummary
+```
+Computes aggregate stats from `sw_logs` and `sw_streak`:
+- `total_sessions`: count of completed logs
+- `total_minutes`: sum of `duration_seconds` ÷ 60
+- `current_streak` / `longest_streak`: from streak state
+- `badges_earned`: size of `sw_earned_badges`

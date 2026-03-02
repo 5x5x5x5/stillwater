@@ -1,119 +1,121 @@
-# Database Schema
+# localStorage Data Structures
 
-Entity-relationship diagram for all 9 tables in the Stillwater database.
+All user data is stored as JSON in browser localStorage under keys prefixed `sw_`. The TypeScript interfaces are defined in `frontend/src/lib/storage.ts`.
 
-## ER Diagram
+## Key Reference
 
-```mermaid
-erDiagram
-    users {
-        string id PK "UUID"
-        string email UK "unique, indexed, lowercase"
-        string hashed_password "bcrypt hash"
-        string display_name
-        boolean is_active "default true"
-        datetime created_at
-        datetime updated_at
-    }
+| Key | Shape | Description |
+|-----|-------|-------------|
+| `sw_display_name` | `string` | User's chosen name |
+| `sw_preferences` | `Preferences` | Audio and session preferences |
+| `sw_logs` | `MeditationLog[]` | All meditation records (append-only) |
+| `sw_streak` | `StreakData` | Cached streak state (updated on each log) |
+| `sw_earned_badges` | `string[]` | IDs of earned badges |
 
-    user_preferences {
-        string id PK "UUID"
-        string user_id FK "unique, → users.id"
-        integer preferred_duration "default 10 (minutes)"
-        string theme "default 'dark'"
-        string bell_sound "default 'tibetan'"
-        string ambient_default "default 'none'"
-        datetime created_at
-        datetime updated_at
-    }
+---
 
-    sessions {
-        string id PK "UUID"
-        string title
-        text description "nullable"
-        string category "indexed (guided, sleep_story, ...)"
-        string subcategory "nullable"
-        string audio_url "nullable"
-        string image_url "nullable"
-        integer duration_seconds
-        string instructor "nullable"
-        boolean is_daily_pick "default false"
-        datetime created_at
-        datetime updated_at
-    }
+## `sw_preferences`
 
-    tags {
-        string id PK "UUID"
-        string name UK "unique"
-    }
-
-    session_tags {
-        string session_id PK,FK "→ sessions.id"
-        string tag_id PK,FK "→ tags.id"
-    }
-
-    meditation_logs {
-        string id PK "UUID"
-        string user_id FK "indexed, → users.id"
-        string session_id FK "nullable, → sessions.id"
-        integer duration_seconds
-        boolean completed "default true"
-        string session_type "default 'guided'"
-        datetime created_at
-        datetime updated_at
-    }
-
-    streaks {
-        string id PK "UUID"
-        string user_id FK "unique, → users.id"
-        integer current_streak "default 0"
-        integer longest_streak "default 0"
-        date last_meditation_date "nullable"
-    }
-
-    badges {
-        string id PK "UUID"
-        string name UK "unique"
-        text description
-        string icon "emoji identifier"
-        string requirement_type "total_sessions | streak | categories"
-        integer requirement_value "threshold"
-    }
-
-    user_badges {
-        string user_id PK,FK "→ users.id"
-        string badge_id PK,FK "→ badges.id"
-    }
-
-    users ||--o| user_preferences : "has one"
-    users ||--o| streaks : "has one"
-    users ||--o{ meditation_logs : "has many"
-    users }o--o{ badges : "earned via user_badges"
-    sessions }o--o{ tags : "tagged via session_tags"
-    meditation_logs }o--o| sessions : "references"
+```ts
+interface Preferences {
+  preferred_duration: number;   // minutes
+  bell_sound: string;
+  ambient_default: string;
+}
 ```
 
-## Table Summary
+**Example:**
+```json
+{
+  "preferred_duration": 10,
+  "bell_sound": "singing_bowl",
+  "ambient_default": "none"
+}
+```
 
-| Table | Rows (seeded) | Purpose |
-|-------|---------------|---------|
-| `users` | — | User accounts |
-| `user_preferences` | — | Per-user settings (1:1 with users) |
-| `sessions` | 13 | Meditation content library |
-| `tags` | ~10 | Session categorization labels |
-| `session_tags` | — | M:N join for sessions ↔ tags |
-| `meditation_logs` | — | Individual meditation records |
-| `streaks` | — | Cached streak data (1:1 with users) |
-| `badges` | 6 | Achievement definitions |
-| `user_badges` | — | M:N join for users ↔ badges |
+---
 
-## Mixins
+## `sw_logs`
 
-All models with `created_at`/`updated_at` use **TimestampMixin**. All primary keys use **UUIDMixin** (string UUID, auto-generated via `uuid4`).
+```ts
+interface MeditationLog {
+  id: string;              // UUID (crypto.randomUUID)
+  session_id: number | null;  // null for breathing exercises
+  duration_seconds: number;
+  completed: boolean;
+  session_type: string;    // 'guided' | 'sleep_story' | 'soundscape' | 'breathing'
+  created_at: string;      // ISO 8601, e.g. "2026-03-02T14:30:00.000Z"
+}
+```
 
-## Notes
+**Example:**
+```json
+[
+  {
+    "id": "a1b2c3d4-...",
+    "session_id": 1,
+    "duration_seconds": 300,
+    "completed": true,
+    "session_type": "guided",
+    "created_at": "2026-03-02T14:30:00.000Z"
+  }
+]
+```
 
-- String UUIDs used instead of native UUID type for SQLite compatibility
-- `session_id` in `meditation_logs` is nullable — breathing exercises log without a session reference
-- `session_type` in `meditation_logs` mirrors session category but is stored independently for free-form entries
-- Cascade deletes configured: deleting a user removes their preferences, logs, streak, and badge associations
+---
+
+## `sw_streak`
+
+```ts
+interface StreakData {
+  current_streak: number;
+  longest_streak: number;
+  last_meditation_date: string | null;  // YYYY-MM-DD
+}
+```
+
+**Example:**
+```json
+{
+  "current_streak": 5,
+  "longest_streak": 12,
+  "last_meditation_date": "2026-03-02"
+}
+```
+
+---
+
+## `sw_earned_badges`
+
+An array of badge ID strings. Badge IDs are defined in `storage.ts`.
+
+**Example:**
+```json
+["first_step", "week_warrior"]
+```
+
+All 6 possible IDs: `first_step`, `dedicated`, `century`, `week_warrior`, `marathon`, `explorer`.
+
+---
+
+## Session Data (not localStorage)
+
+Sessions are not stored in localStorage — they're bundled as a static asset at build time:
+
+**`frontend/src/data/sessions.json`** — 13 sessions with this shape:
+
+```ts
+interface Session {
+  id: number;
+  title: string;
+  description: string;
+  category: string;       // 'guided' | 'sleep_story' | 'soundscape'
+  subcategory: string;
+  duration_seconds: number;
+  instructor: string | null;
+  audio_url: string;
+  image_url: string;
+  is_daily_pick: boolean;
+  tags: string[];         // e.g. ['beginner', 'stress-relief']
+}
+```

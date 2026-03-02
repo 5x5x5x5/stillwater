@@ -5,7 +5,7 @@ import { useAmbientMixer } from '../../hooks/useAmbientMixer';
 import { useBellInterval } from '../../hooks/useBellInterval';
 import { useMediaSession } from '../../hooks/useMediaSession';
 import { ProgressBar } from './ProgressBar';
-import { progressApi } from '../../api/progress';
+import { useProgressStore } from '../../stores/progressStore';
 
 function formatTime(seconds: number): string {
   const m = Math.floor(seconds / 60);
@@ -51,19 +51,16 @@ export function PlayerBar() {
     toggle,
     expand,
   } = usePlayerStore();
+  const logMeditation = useProgressStore((s) => s.logMeditation);
 
-  const handleComplete = async () => {
+  const handleComplete = () => {
     if (!currentSession) return;
-    try {
-      await progressApi.logMeditation({
-        session_id: currentSession.id,
-        duration_seconds: currentSession.duration_seconds,
-        completed: true,
-        session_type: currentSession.category,
-      });
-    } catch {
-      // Non-critical
-    }
+    logMeditation({
+      session_id: currentSession.id,
+      duration_seconds: currentSession.duration_seconds,
+      completed: true,
+      session_type: currentSession.category,
+    });
   };
 
   const { seekTo } = useAudioEngine({ onComplete: handleComplete });

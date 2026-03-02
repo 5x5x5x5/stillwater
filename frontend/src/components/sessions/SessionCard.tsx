@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import type { Session } from '../../api/sessions';
+import type { Session } from '../../stores/sessionStore';
 import { usePlayerStore } from '../../stores/playerStore';
 import { useNavigate } from 'react-router';
 

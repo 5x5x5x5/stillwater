@@ -1,35 +1,38 @@
 # Configuration
 
-All backend settings are read from environment variables, with `.env` file support via pydantic-settings.
+All user data and preferences are stored in browser localStorage. There is no server and no environment variables.
 
-## Environment Variables
+## localStorage Keys
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `DATABASE_URL` | `sqlite+aiosqlite:///./stillwater.db` | Database connection string |
-| `SECRET_KEY` | `dev-secret-key-change-in-production` | JWT signing key |
-| `CORS_ORIGINS` | `http://localhost:5173` | Comma-separated allowed origins |
-| `DEBUG` | `true` | Enables auto table creation on startup |
-| `ACCESS_TOKEN_EXPIRE_MINUTES` | `10080` (7 days) | JWT expiration |
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| `sw_display_name` | `string` | — | The user's chosen display name, set on first visit |
+| `sw_preferences` | `Preferences` (JSON) | See below | Audio and session preferences |
+| `sw_logs` | `MeditationLog[]` (JSON) | `[]` | All meditation session records |
+| `sw_streak` | `StreakData` (JSON) | `{current:0, longest:0, last:null}` | Cached streak state |
+| `sw_earned_badges` | `string[]` (JSON) | `[]` | IDs of earned badges |
 
-## Example `.env`
+## Preferences Object
 
-```
-DATABASE_URL=sqlite+aiosqlite:///./stillwater.db
-SECRET_KEY=dev-secret-key-change-in-production
-CORS_ORIGINS=http://localhost:5173
-DEBUG=true
-```
-
-## Production (PostgreSQL)
-
-Switch the database URL to PostgreSQL:
-
-```
-DATABASE_URL=postgresql+asyncpg://user:pass@host:5432/stillwater
-SECRET_KEY=<long-random-string>
-CORS_ORIGINS=https://yourdomain.com
-DEBUG=false
+```ts
+interface Preferences {
+  preferred_duration: number;   // minutes, default 10
+  bell_sound: string;           // default 'singing_bowl'
+  ambient_default: string;      // default 'none'
+}
 ```
 
-The schema avoids PostgreSQL-only features, so switching databases requires no code changes.
+Stored under `sw_preferences`. Updated via `authStore.updatePreferences()` which calls `storage.savePreferences()`.
+
+## Resetting Data
+
+To clear all progress and start fresh, open the browser DevTools console and run:
+
+```js
+Object.keys(localStorage)
+  .filter(k => k.startsWith('sw_'))
+  .forEach(k => localStorage.removeItem(k));
+location.reload();
+```
+
+Or clear all site data via **DevTools → Application → Storage → Clear site data**.
