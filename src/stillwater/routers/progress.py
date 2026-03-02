@@ -3,17 +3,17 @@
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from stillpoint.db import get_db
-from stillpoint.dependencies import get_current_user
-from stillpoint.models.user import User
-from stillpoint.schemas.progress import (
+from stillwater.db import get_db
+from stillwater.dependencies import get_current_user
+from stillwater.models.user import User
+from stillwater.schemas.progress import (
     BadgeResponse,
     HeatmapData,
     MeditationLogCreate,
     MeditationLogResponse,
     ProgressSummary,
 )
-from stillpoint.services.progress import (
+from stillwater.services.progress import (
     get_heatmap,
     get_progress_summary,
     get_user_badges,

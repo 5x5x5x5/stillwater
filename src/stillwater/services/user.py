@@ -4,9 +4,9 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from stillpoint.models.user import User, UserPreference
-from stillpoint.schemas.user import UserCreate, UserPreferenceUpdate
-from stillpoint.services.auth import hash_password
+from stillwater.models.user import User, UserPreference
+from stillwater.schemas.user import UserCreate, UserPreferenceUpdate
+from stillwater.services.auth import hash_password
 
 
 async def create_user(db: AsyncSession, data: UserCreate) -> User:

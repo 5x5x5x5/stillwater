@@ -35,7 +35,7 @@ export default function LoginPage() {
       >
         {/* Logo */}
         <div className="text-center mb-8">
-          <h1 className="font-serif text-4xl text-lavender mb-2">Stillpoint</h1>
+          <h1 className="font-serif text-4xl text-lavender mb-2">Stillwater</h1>
           <p className="text-offwhite/50 text-sm">Find your calm</p>
         </div>
 

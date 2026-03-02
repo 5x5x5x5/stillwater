@@ -1,7 +1,7 @@
 [project]
-name = "stillpoint"
+name = "stillwater"
 version = "0.1.0"
-description = "Stillpoint - A meditation and mindfulness app"
+description = "Stillwater - A meditation and mindfulness app"
 readme = "README.md"
 authors = [
     { name = "Daniel Siegle", email = "daniel.siegle@gmail.com" }
@@ -28,7 +28,7 @@ dev = [
 ]
 
 [project.scripts]
-stillpoint = "stillpoint:main"
+stillwater = "stillwater:main"
 
 [build-system]
 requires = ["uv_build>=0.8.12,<0.9.0"]

@@ -6,18 +6,18 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from stillpoint.db import get_db
-from stillpoint.dependencies import get_current_user
-from stillpoint.models.user import User, UserPreference
-from stillpoint.schemas.user import (
+from stillwater.db import get_db
+from stillwater.dependencies import get_current_user
+from stillwater.models.user import User, UserPreference
+from stillwater.schemas.user import (
     Token,
     UserCreate,
     UserPreferenceResponse,
     UserPreferenceUpdate,
     UserResponse,
 )
-from stillpoint.services.auth import create_access_token, verify_password
-from stillpoint.services.user import create_user, get_user_by_email, update_preferences
+from stillwater.services.auth import create_access_token, verify_password
+from stillwater.services.user import create_user, get_user_by_email, update_preferences
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 

@@ -5,7 +5,7 @@ from datetime import UTC, datetime, timedelta
 import bcrypt
 import jwt
 
-from stillpoint.config import settings
+from stillwater.config import settings
 
 _ALGORITHM = "HS256"
 

@@ -1,7 +1,7 @@
 from sqlalchemy import Boolean, ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from stillpoint.db import Base, TimestampMixin, UUIDMixin
+from stillwater.db import Base, TimestampMixin, UUIDMixin
 
 
 class User(UUIDMixin, TimestampMixin, Base):

@@ -156,7 +156,7 @@ flowchart LR
     end
 
     subgraph MediaSession["navigator.mediaSession"]
-        META["metadata:\n  title: session.title\n  artist: instructor || 'Stillpoint'\n  album: session.category\n  artwork: session.image_url"]
+        META["metadata:\n  title: session.title\n  artist: instructor || 'Stillwater'\n  album: session.category\n  artwork: session.image_url"]
         ACTIONS["action handlers:\n  play → toggle()\n  pause → toggle()\n  stop → stop()"]
         PBS["playbackState:\n  isPlaying ? 'playing' : 'paused'"]
     end

@@ -1,4 +1,4 @@
-# Stillpoint
+# Stillwater
 
 A meditation and mindfulness app inspired by Headspace. Full-stack with a FastAPI backend, React 19 frontend, and SQLite for local development.
 
@@ -35,10 +35,10 @@ A meditation and mindfulness app inspired by Headspace. Full-stack with a FastAP
 uv sync
 
 # Seed the database with sample data
-uv run python -m stillpoint.seed
+uv run python -m stillwater.seed
 
 # Start the dev server (port 8000)
-uv run uvicorn stillpoint.main:app --reload
+uv run uvicorn stillwater.main:app --reload
 ```
 
 ### Frontend
@@ -74,7 +74,7 @@ stillwater/
 ├── alembic/
 │   └── env.py                      # Async Alembic environment
 │
-├── src/stillpoint/
+├── src/stillwater/
 │   ├── main.py                     # FastAPI app, CORS, lifespan, router includes
 │   ├── config.py                   # Pydantic Settings (env-driven)
 │   ├── db.py                       # Async engine, session maker, Base, mixins
@@ -212,7 +212,7 @@ Base URL: `/api`
 
 | Method | Path | Auth | Response |
 |--------|------|------|----------|
-| GET | `/api/health` | No | `{ status: "ok", app: "stillpoint" }` |
+| GET | `/api/health` | No | `{ status: "ok", app: "stillwater" }` |
 
 ### Auth (`/api/auth`)
 
@@ -555,7 +555,7 @@ Body defaults: `bg-navy text-offwhite font-sans antialiased`
 
 ## Seed Data
 
-Run `uv run python -m stillpoint.seed` to populate the database. This creates:
+Run `uv run python -m stillwater.seed` to populate the database. This creates:
 
 **12 tags**: beginner, intermediate, advanced, stress-relief, focus, sleep, morning, evening, nature, breathwork, body-scan, visualization
 
@@ -589,7 +589,7 @@ All backend settings are read from environment variables (with `.env` file suppo
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `DATABASE_URL` | `sqlite+aiosqlite:///./stillpoint.db` | Database connection string |
+| `DATABASE_URL` | `sqlite+aiosqlite:///./stillwater.db` | Database connection string |
 | `SECRET_KEY` | `dev-secret-key-change-in-production` | JWT signing key |
 | `CORS_ORIGINS` | `http://localhost:5173` | Comma-separated allowed origins |
 | `DEBUG` | `true` | Enables auto table creation, SQL echo |
@@ -597,7 +597,7 @@ All backend settings are read from environment variables (with `.env` file suppo
 
 For production, switch to PostgreSQL:
 ```
-DATABASE_URL=postgresql+asyncpg://user:pass@host:5432/stillpoint
+DATABASE_URL=postgresql+asyncpg://user:pass@host:5432/stillwater
 ```
 
 The schema avoids PostgreSQL-only features (no `ARRAY`, no `tsvector`), so switching databases requires no code changes.

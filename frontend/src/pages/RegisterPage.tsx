@@ -50,7 +50,7 @@ export default function RegisterPage() {
         className="w-full max-w-sm"
       >
         <div className="text-center mb-8">
-          <h1 className="font-serif text-4xl text-lavender mb-2">Stillpoint</h1>
+          <h1 className="font-serif text-4xl text-lavender mb-2">Stillwater</h1>
           <p className="text-offwhite/50 text-sm">Begin your practice</p>
         </div>
 

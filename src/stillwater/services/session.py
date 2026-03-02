@@ -4,7 +4,7 @@ from sqlalchemy import distinct, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from stillpoint.models.session import Session, Tag, session_tags
+from stillwater.models.session import Session, Tag, session_tags
 
 
 async def list_sessions(

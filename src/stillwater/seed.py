@@ -1,15 +1,15 @@
 """Seed script: populate the database with demo sessions, tags, and badges.
 
 Run with:
-    uv run python -m stillpoint.seed
+    uv run python -m stillwater.seed
 """
 
 import asyncio
 import uuid
 
-from stillpoint.db import Base, async_session, engine
-from stillpoint.models.progress import Badge
-from stillpoint.models.session import Session, Tag
+from stillwater.db import Base, async_session, engine
+from stillwater.models.progress import Badge
+from stillwater.models.session import Session, Tag
 
 
 def _id() -> str:
@@ -52,8 +52,8 @@ SESSION_DATA: list[dict] = [
         "subcategory": "stress",
         "duration_seconds": 5 * 60,
         "instructor": "Sarah Chen",
-        "audio_url": "https://cdn.stillpoint.app/audio/breath-reset.mp3",
-        "image_url": "https://cdn.stillpoint.app/images/breath-reset.jpg",
+        "audio_url": "https://cdn.stillwater.app/audio/breath-reset.mp3",
+        "image_url": "https://cdn.stillwater.app/images/breath-reset.jpg",
         "is_daily_pick": True,
         "tags": ["beginner", "stress-relief", "breathwork"],
     },
@@ -67,8 +67,8 @@ SESSION_DATA: list[dict] = [
         "subcategory": "stress",
         "duration_seconds": 15 * 60,
         "instructor": "Sarah Chen",
-        "audio_url": "https://cdn.stillpoint.app/audio/letting-go.mp3",
-        "image_url": "https://cdn.stillpoint.app/images/letting-go.jpg",
+        "audio_url": "https://cdn.stillwater.app/audio/letting-go.mp3",
+        "image_url": "https://cdn.stillwater.app/images/letting-go.jpg",
         "is_daily_pick": False,
         "tags": ["intermediate", "stress-relief", "body-scan"],
     },
@@ -83,8 +83,8 @@ SESSION_DATA: list[dict] = [
         "subcategory": "focus",
         "duration_seconds": 10 * 60,
         "instructor": "Marcus Webb",
-        "audio_url": "https://cdn.stillpoint.app/audio/deep-focus.mp3",
-        "image_url": "https://cdn.stillpoint.app/images/deep-focus.jpg",
+        "audio_url": "https://cdn.stillwater.app/audio/deep-focus.mp3",
+        "image_url": "https://cdn.stillwater.app/images/deep-focus.jpg",
         "is_daily_pick": False,
         "tags": ["intermediate", "focus"],
     },
@@ -98,8 +98,8 @@ SESSION_DATA: list[dict] = [
         "subcategory": "focus",
         "duration_seconds": 20 * 60,
         "instructor": "Marcus Webb",
-        "audio_url": "https://cdn.stillpoint.app/audio/clarity-viz.mp3",
-        "image_url": "https://cdn.stillpoint.app/images/clarity-viz.jpg",
+        "audio_url": "https://cdn.stillwater.app/audio/clarity-viz.mp3",
+        "image_url": "https://cdn.stillwater.app/images/clarity-viz.jpg",
         "is_daily_pick": False,
         "tags": ["advanced", "focus", "visualization"],
     },
@@ -114,8 +114,8 @@ SESSION_DATA: list[dict] = [
         "subcategory": "anxiety",
         "duration_seconds": 12 * 60,
         "instructor": "Priya Nair",
-        "audio_url": "https://cdn.stillpoint.app/audio/calm-storm.mp3",
-        "image_url": "https://cdn.stillpoint.app/images/calm-storm.jpg",
+        "audio_url": "https://cdn.stillwater.app/audio/calm-storm.mp3",
+        "image_url": "https://cdn.stillwater.app/images/calm-storm.jpg",
         "is_daily_pick": False,
         "tags": ["beginner", "stress-relief", "breathwork"],
     },
@@ -130,8 +130,8 @@ SESSION_DATA: list[dict] = [
         "subcategory": "morning",
         "duration_seconds": 10 * 60,
         "instructor": "Priya Nair",
-        "audio_url": "https://cdn.stillpoint.app/audio/sunrise-intention.mp3",
-        "image_url": "https://cdn.stillpoint.app/images/sunrise-intention.jpg",
+        "audio_url": "https://cdn.stillwater.app/audio/sunrise-intention.mp3",
+        "image_url": "https://cdn.stillwater.app/images/sunrise-intention.jpg",
         "is_daily_pick": False,
         "tags": ["beginner", "morning"],
     },
@@ -146,8 +146,8 @@ SESSION_DATA: list[dict] = [
         "subcategory": "evening",
         "duration_seconds": 15 * 60,
         "instructor": "Sarah Chen",
-        "audio_url": "https://cdn.stillpoint.app/audio/evening-wind-down.mp3",
-        "image_url": "https://cdn.stillpoint.app/images/evening-wind-down.jpg",
+        "audio_url": "https://cdn.stillwater.app/audio/evening-wind-down.mp3",
+        "image_url": "https://cdn.stillwater.app/images/evening-wind-down.jpg",
         "is_daily_pick": False,
         "tags": ["beginner", "evening", "stress-relief"],
     },
@@ -162,8 +162,8 @@ SESSION_DATA: list[dict] = [
         "subcategory": "sleep",
         "duration_seconds": 30 * 60,
         "instructor": "James Holloway",
-        "audio_url": "https://cdn.stillpoint.app/audio/forest-cabin.mp3",
-        "image_url": "https://cdn.stillpoint.app/images/forest-cabin.jpg",
+        "audio_url": "https://cdn.stillwater.app/audio/forest-cabin.mp3",
+        "image_url": "https://cdn.stillwater.app/images/forest-cabin.jpg",
         "is_daily_pick": False,
         "tags": ["sleep", "nature", "beginner"],
     },
@@ -177,8 +177,8 @@ SESSION_DATA: list[dict] = [
         "subcategory": "sleep",
         "duration_seconds": 25 * 60,
         "instructor": "James Holloway",
-        "audio_url": "https://cdn.stillpoint.app/audio/stargazing.mp3",
-        "image_url": "https://cdn.stillpoint.app/images/stargazing.jpg",
+        "audio_url": "https://cdn.stillwater.app/audio/stargazing.mp3",
+        "image_url": "https://cdn.stillwater.app/images/stargazing.jpg",
         "is_daily_pick": False,
         "tags": ["sleep", "nature", "visualization"],
     },
@@ -192,8 +192,8 @@ SESSION_DATA: list[dict] = [
         "subcategory": "sleep",
         "duration_seconds": 35 * 60,
         "instructor": "Amara Osei",
-        "audio_url": "https://cdn.stillpoint.app/audio/quiet-library.mp3",
-        "image_url": "https://cdn.stillpoint.app/images/quiet-library.jpg",
+        "audio_url": "https://cdn.stillwater.app/audio/quiet-library.mp3",
+        "image_url": "https://cdn.stillwater.app/images/quiet-library.jpg",
         "is_daily_pick": False,
         "tags": ["sleep", "intermediate"],
     },
@@ -208,8 +208,8 @@ SESSION_DATA: list[dict] = [
         "subcategory": "sleep",
         "duration_seconds": 60 * 60,
         "instructor": None,
-        "audio_url": "https://cdn.stillpoint.app/audio/ocean-midnight.mp3",
-        "image_url": "https://cdn.stillpoint.app/images/ocean-midnight.jpg",
+        "audio_url": "https://cdn.stillwater.app/audio/ocean-midnight.mp3",
+        "image_url": "https://cdn.stillwater.app/images/ocean-midnight.jpg",
         "is_daily_pick": False,
         "tags": ["sleep", "nature", "beginner"],
     },
@@ -224,8 +224,8 @@ SESSION_DATA: list[dict] = [
         "subcategory": "focus",
         "duration_seconds": 45 * 60,
         "instructor": None,
-        "audio_url": "https://cdn.stillpoint.app/audio/mountain-rain.mp3",
-        "image_url": "https://cdn.stillpoint.app/images/mountain-rain.jpg",
+        "audio_url": "https://cdn.stillwater.app/audio/mountain-rain.mp3",
+        "image_url": "https://cdn.stillwater.app/images/mountain-rain.jpg",
         "is_daily_pick": False,
         "tags": ["focus", "nature", "beginner"],
     },
@@ -240,8 +240,8 @@ SESSION_DATA: list[dict] = [
         "subcategory": "morning",
         "duration_seconds": 20 * 60,
         "instructor": None,
-        "audio_url": "https://cdn.stillpoint.app/audio/dawn-chorus.mp3",
-        "image_url": "https://cdn.stillpoint.app/images/dawn-chorus.jpg",
+        "audio_url": "https://cdn.stillwater.app/audio/dawn-chorus.mp3",
+        "image_url": "https://cdn.stillwater.app/images/dawn-chorus.jpg",
         "is_daily_pick": False,
         "tags": ["morning", "nature", "beginner"],
     },

@@ -1,7 +1,7 @@
 from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, Table, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from stillpoint.db import Base, TimestampMixin, UUIDMixin
+from stillwater.db import Base, TimestampMixin, UUIDMixin
 
 session_tags = Table(
     "session_tags",

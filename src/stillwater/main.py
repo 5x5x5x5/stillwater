@@ -1,16 +1,16 @@
-"""Stillpoint FastAPI application factory and startup configuration."""
+"""Stillwater FastAPI application factory and startup configuration."""
 
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-import stillpoint.models  # noqa: F401 — register models with Base
-from stillpoint.config import settings
-from stillpoint.db import Base, engine
-from stillpoint.routers.auth import router as auth_router
-from stillpoint.routers.progress import router as progress_router
-from stillpoint.routers.sessions import router as sessions_router
+import stillwater.models  # noqa: F401 — register models with Base
+from stillwater.config import settings
+from stillwater.db import Base, engine
+from stillwater.routers.auth import router as auth_router
+from stillwater.routers.progress import router as progress_router
+from stillwater.routers.sessions import router as sessions_router
 
 
 @asynccontextmanager
@@ -27,7 +27,7 @@ async def lifespan(app: FastAPI):
     await engine.dispose()
 
 
-app = FastAPI(title="Stillpoint", version="0.1.0", lifespan=lifespan)
+app = FastAPI(title="Stillwater", version="0.1.0", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
@@ -49,4 +49,4 @@ async def health_check() -> dict[str, str]:
     Returns:
         A JSON object with ``status`` and ``app`` keys.
     """
-    return {"status": "ok", "app": "stillpoint"}
+    return {"status": "ok", "app": "stillwater"}

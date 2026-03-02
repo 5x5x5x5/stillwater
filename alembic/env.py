@@ -6,9 +6,9 @@ from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
 from alembic import context
-from stillpoint.config import settings
-from stillpoint.db import Base
-import stillpoint.models  # noqa: F401 — ensure all models are imported
+from stillwater.config import settings
+from stillwater.db import Base
+import stillwater.models  # noqa: F401 — ensure all models are imported
 
 config = context.config
 config.set_main_option("sqlalchemy.url", settings.DATABASE_URL)

@@ -5,7 +5,7 @@ from sqlalchemy import DateTime, func
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
-from stillpoint.config import settings
+from stillwater.config import settings
 
 engine = create_async_engine(
     settings.DATABASE_URL,

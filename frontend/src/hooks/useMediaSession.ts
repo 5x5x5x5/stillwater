@@ -10,7 +10,7 @@ export function useMediaSession() {
 
     navigator.mediaSession.metadata = new MediaMetadata({
       title: currentSession.title,
-      artist: currentSession.instructor || 'Stillpoint',
+      artist: currentSession.instructor || 'Stillwater',
       album: currentSession.category,
       artwork: currentSession.image_url
         ? [{ src: currentSession.image_url, sizes: '512x512', type: 'image/jpeg' }]

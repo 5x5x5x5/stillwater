@@ -5,8 +5,8 @@ from datetime import date, timedelta
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from stillpoint.models.progress import Badge, MeditationLog, Streak, user_badges
-from stillpoint.schemas.progress import (
+from stillwater.models.progress import Badge, MeditationLog, Streak, user_badges
+from stillwater.schemas.progress import (
     BadgeResponse,
     HeatmapData,
     MeditationLogCreate,

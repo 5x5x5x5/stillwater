@@ -3,10 +3,10 @@
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from stillpoint.db import get_db
-from stillpoint.models.session import Session, Tag
-from stillpoint.schemas.session import SessionListResponse, SessionResponse, TagResponse
-from stillpoint.services.session import (
+from stillwater.db import get_db
+from stillwater.models.session import Session, Tag
+from stillwater.schemas.session import SessionListResponse, SessionResponse, TagResponse
+from stillwater.services.session import (
     get_categories,
     get_daily_pick,
     get_session,

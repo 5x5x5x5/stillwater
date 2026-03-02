@@ -2,7 +2,7 @@ from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
-    DATABASE_URL: str = "sqlite+aiosqlite:///./stillpoint.db"
+    DATABASE_URL: str = "sqlite+aiosqlite:///./stillwater.db"
     SECRET_KEY: str = "dev-secret-key-change-in-production"
     CORS_ORIGINS: str = "http://localhost:5173"
     DEBUG: bool = True

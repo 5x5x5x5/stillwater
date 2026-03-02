@@ -60,7 +60,7 @@ export function AppLayout() {
       {/* Desktop sidebar */}
       <aside className="hidden md:flex flex-col w-64 min-h-screen bg-navy-dark border-r border-white/5 py-8 px-4 fixed left-0 top-0 bottom-0">
         <div className="mb-10 px-2">
-          <span className="font-serif text-2xl text-lavender tracking-wide">Stillpoint</span>
+          <span className="font-serif text-2xl text-lavender tracking-wide">Stillwater</span>
         </div>
 
         <nav className="flex flex-col gap-1 flex-1" aria-label="Main navigation">

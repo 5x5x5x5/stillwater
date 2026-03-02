@@ -1,6 +1,6 @@
-# Testing Stillpoint Locally
+# Testing Stillwater Locally
 
-A step-by-step guide for running the Stillpoint meditation app on your machine and verifying every feature.
+A step-by-step guide for running the Stillwater meditation app on your machine and verifying every feature.
 
 ---
 
@@ -37,7 +37,7 @@ cd frontend && npm install && cd ..
 The default `.env` ships with working dev values — no changes needed:
 
 ```
-DATABASE_URL=sqlite+aiosqlite:///./stillpoint.db
+DATABASE_URL=sqlite+aiosqlite:///./stillwater.db
 SECRET_KEY=dev-secret-key-change-in-production
 CORS_ORIGINS=http://localhost:5173
 DEBUG=true
@@ -52,7 +52,7 @@ You need **two terminals** running side by side.
 **Terminal 1 — Backend (port 8000):**
 
 ```bash
-uv run uvicorn stillpoint.main:app --reload
+uv run uvicorn stillwater.main:app --reload
 ```
 
 **Terminal 2 — Frontend (port 5173):**
@@ -72,7 +72,7 @@ Expected:
 ```json
 {
   "status": "ok",
-  "app": "stillpoint"
+  "app": "stillwater"
 }
 ```
 
@@ -83,7 +83,7 @@ The frontend dev server proxies all `/api/*` requests to `localhost:8000`, so yo
 ## 4. Seed the Database
 
 ```bash
-uv run python -m stillpoint.seed
+uv run python -m stillwater.seed
 ```
 
 > **Warning:** The seed script drops and recreates all tables. Any existing data (users, logs) will be deleted.
@@ -152,7 +152,7 @@ curl -s localhost:8000/api/auth/me \
 6. **Bell interval** — set a bell interval and listen for the chime
 7. Let a short session play to completion — it should auto-log to your progress
 
-> **Note:** Audio files point to `cdn.stillpoint.app` which won't resolve locally. The player UI still works for testing controls — you just won't hear actual audio unless you provide local files.
+> **Note:** Audio files point to `cdn.stillwater.app` which won't resolve locally. The player UI still works for testing controls — you just won't hear actual audio unless you provide local files.
 
 ### 5d. Progress Tracking
 
@@ -290,7 +290,7 @@ Or start on a different port:
 
 ```bash
 # Backend on port 8001
-uv run uvicorn stillpoint.main:app --reload --port 8001
+uv run uvicorn stillwater.main:app --reload --port 8001
 
 # Frontend on port 3000
 cd frontend && npm run dev -- --port 3000
@@ -301,8 +301,8 @@ cd frontend && npm run dev -- --port 3000
 **Database reset**
 
 ```bash
-rm stillpoint.db
-uv run python -m stillpoint.seed
+rm stillwater.db
+uv run python -m stillwater.seed
 ```
 
 **CORS errors in the browser console**
@@ -318,8 +318,8 @@ Tokens expire after 7 days. Log in again to get a fresh token. If using `curl`, 
 If the seed script fails, delete the database file and try again:
 
 ```bash
-rm -f stillpoint.db
-uv run python -m stillpoint.seed
+rm -f stillwater.db
+uv run python -m stillwater.seed
 ```
 
 **Frontend shows blank page**

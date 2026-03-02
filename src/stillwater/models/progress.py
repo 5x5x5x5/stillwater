@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Date, ForeignKey, Integer, String, Table, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from stillpoint.db import Base, TimestampMixin, UUIDMixin
+from stillwater.db import Base, TimestampMixin, UUIDMixin
 
 user_badges = Table(
     "user_badges",

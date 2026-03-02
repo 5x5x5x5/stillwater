@@ -1,6 +1,6 @@
-# Stillpoint — High-Level Architecture
+# Stillwater — High-Level Architecture
 
-System overview of the Stillpoint meditation app, showing the full stack from browser to database.
+System overview of the Stillwater meditation app, showing the full stack from browser to database.
 
 ## System Architecture
 

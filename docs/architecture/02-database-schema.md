@@ -1,6 +1,6 @@
 # Database Schema
 
-Entity-relationship diagram for all 9 tables in the Stillpoint database.
+Entity-relationship diagram for all 9 tables in the Stillwater database.
 
 ## ER Diagram
 

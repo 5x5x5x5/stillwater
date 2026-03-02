@@ -813,7 +813,7 @@ wheels = [
 ]
 
 [[package]]
-name = "stillpoint"
+name = "stillwater"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [

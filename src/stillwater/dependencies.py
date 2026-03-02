@@ -4,10 +4,10 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from stillpoint.db import get_db
-from stillpoint.models.user import User
-from stillpoint.services.auth import decode_access_token
-from stillpoint.services.user import get_user_by_id
+from stillwater.db import get_db
+from stillwater.models.user import User
+from stillwater.services.auth import decode_access_token
+from stillwater.services.user import get_user_by_id
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
 
