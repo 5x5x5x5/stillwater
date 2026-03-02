@@ -110,8 +110,11 @@ uv run ruff check src/ tests/
 uv run pytest tests/ -v
 ```
 
-## Branch
+## Implementations
 
-This is `explore/python-tui` — a proof-of-concept TUI rewrite.
-The `main` branch contains the original FastAPI + React app.
-The `explore/no-backend` branch contains the localStorage-only React app.
+Both implementations live on `main`:
+
+| Directory | Type | Stack |
+|-----------|------|-------|
+| `frontend/` | Browser app | Vite + React 19 + TypeScript + Tailwind v4 |
+| `stillwater-tui/` | Terminal app | Python 3.12 + Textual 8 + pygame + aiosqlite |

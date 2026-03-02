@@ -1,29 +1,31 @@
 # Stillwater
 
-A meditation and mindfulness app. Static-site React app — no backend required.
+A meditation and mindfulness app with two independent implementations: a browser React app and a Python terminal app.
 
-## Tech Stack
+| Directory | Type | Stack |
+|-----------|------|-------|
+| `frontend/` | Browser app | Vite + React 19 + TypeScript + Tailwind v4 |
+| `stillwater-tui/` | Terminal app | Python 3.12 + Textual 8 + pygame + aiosqlite |
+
+---
+
+## React Frontend
+
+### Tech Stack
 
 | Layer | Technology |
 |-------|-----------|
-| Frontend | React 19, TypeScript (strict), Vite 7 |
+| Framework | React 19, TypeScript (strict), Vite 7 |
 | Styling | Tailwind CSS v4 (CSS-first config) |
 | State | Zustand |
 | Storage | Browser localStorage |
 | Audio | Howler.js |
 | Animation | Framer Motion |
-| Charts | Recharts |
 | Routing | React Router v7 |
 
----
+### Quick Start
 
-## Quick Start
-
-### Prerequisites
-
-- Node.js 22+, npm 10+
-
-### Run
+**Prerequisites:** Node.js 22+, npm 10+
 
 ```bash
 cd frontend
@@ -39,25 +41,51 @@ Open http://localhost:5173 in your browser. Enter your name when prompted to get
 
 ---
 
-## Features
+## Python TUI
+
+### Tech Stack
+
+| Concern | Tool |
+|---------|------|
+| UI | Textual 8.x |
+| Audio | pygame ≥ 2.6 |
+| Persistence | aiosqlite — SQLite at `~/.local/share/stillwater/stillwater.db` |
+| Package manager | uv |
+| Linting | ruff |
+
+### Quick Start
+
+**Prerequisites:** Python 3.12+, [uv](https://docs.astral.sh/uv/)
+
+```bash
+cd stillwater-tui
+
+# Install dependencies
+uv sync
+
+# Run the app
+uv run stillwater-tui
+```
+
+See [stillwater-tui/README.md](stillwater-tui/README.md) for key bindings, audio setup, and development commands.
+
+---
+
+## Features (both implementations)
 
 ### Session Library
 - 13 bundled meditation sessions across 3 categories: **guided**, **sleep stories**, **soundscapes**
-- Dynamic filtering by category, subcategory, tag, duration range, and text search
-- Daily pick featured on the home page
+- Filter by category; daily pick featured on the home screen
 
 ### Audio Player
-- Persistent bottom bar with frosted glass effect (visible across all pages)
-- Full-screen expanded mode with artwork, volume, and controls
-- **Ambient mixer**: 6 concurrent sounds (rain, ocean, forest, fire, wind, birds)
-- **Bell intervals**: configurable periodic bell chime during meditation
-- **Media Session API**: OS-level media controls (lock screen, notification center)
+- Session playback with play/pause/seek controls
+- **Ambient mixer**: 6 concurrent background sounds
+- **Bell intervals**: configurable periodic chime during meditation
 
 ### Progress Tracking
 - Meditation logging with automatic streak calculation
-- GitHub-style SVG **heatmap** (52 weeks × 7 days)
+- Activity **heatmap** (52 weeks × 7 days)
 - 6 **achievement badges** automatically awarded
-- All data persists in browser localStorage
 
 ### Breathing Exercises
 - Box Breathing, 4-7-8, and Coherent Breathing patterns
@@ -70,3 +98,4 @@ Open http://localhost:5173 in your browser. Enter your name when prompted to get
 
 - [Local testing guide](docs/testing-locally.md)
 - [Architecture](docs/architecture/)
+- [Python TUI readme](stillwater-tui/README.md)
