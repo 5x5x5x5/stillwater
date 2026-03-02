@@ -1,10 +1,17 @@
 # Testing Stillwater Locally
 
-A step-by-step guide for running the Stillwater meditation app on your machine and verifying every feature.
+The repo has two independent apps. Pick one or test both.
+
+| App | Directory | Runtime |
+|-----|-----------|---------|
+| React frontend | `frontend/` | Node + browser |
+| Python TUI | `stillwater-tui/` | Python 3.12 + uv |
 
 ---
 
-## 1. Prerequisites
+## React Frontend
+
+### 1. Prerequisites
 
 | Tool | Minimum Version | Check |
 |------|----------------|-------|
@@ -13,7 +20,7 @@ A step-by-step guide for running the Stillwater meditation app on your machine a
 
 ---
 
-## 2. Initial Setup
+### 2. Initial Setup
 
 ```bash
 # Navigate to the frontend directory
@@ -25,7 +32,7 @@ npm install
 
 ---
 
-## 3. Start the App
+### 3. Start the App
 
 ```bash
 npm run dev
@@ -37,7 +44,7 @@ No backend is needed. All data is stored in your browser's localStorage.
 
 ---
 
-## 4. Test Each Feature
+### 4. Test Each Feature
 
 ### 4a. First Visit — Name Prompt
 
@@ -118,7 +125,7 @@ import('/src/lib/storage.ts').then(m => m.appendLog({
 
 ---
 
-## 5. Linting and Build
+### 5. Linting and Build
 
 ```bash
 # ESLint
@@ -132,7 +139,7 @@ Both should complete without errors.
 
 ---
 
-## 6. Troubleshooting
+### 6. Troubleshooting
 
 **Port 5173 already in use**
 
@@ -169,3 +176,82 @@ Or: DevTools → Application → Storage → Clear site data.
 Check the browser console for errors. Common causes:
 - Wrong Node version (need 22+)
 - Missing `npm install`
+
+---
+
+## Python TUI
+
+### 1. Prerequisites
+
+| Tool | Minimum Version | Check |
+|------|----------------|-------|
+| Python | 3.12 | `python3 --version` |
+| uv | any | `uv --version` |
+
+Install uv if needed: `curl -LsSf https://astral.sh/uv/install.sh | sh`
+
+### 2. Install and Run
+
+```bash
+cd stillwater-tui
+
+# Install dependencies into .venv
+uv sync
+
+# Run the app
+uv run stillwater-tui
+```
+
+First launch shows a name prompt. Enter any name and press Enter or click Continue.
+
+### 3. Key Bindings
+
+| Key | Action |
+|-----|--------|
+| `h` | Home |
+| `l` | Library |
+| `p` | Progress |
+| `b` | Breathing |
+| `Space` | Play / Pause |
+| `q` | Quit |
+
+### 4. Test Each Feature
+
+**Home** — verify greeting uses your name and the daily pick card shows "5-Minute Breath Reset".
+
+**Library** — press `l`; 13 sessions should appear. Click category filter buttons (Guided / Sleep Story / Soundscape) and verify the list updates.
+
+**Session detail** — click or press Enter on a session card; a modal should open with description and a Play button.
+
+**Player bar** — press Play on a session; the bottom bar should show the session title and elapsed time counting up. Press Space to pause/resume. Press ⏹ to stop.
+
+**Breathing** — press `b`; select a pattern, set a short duration (3 min), press Start. The animated circle should pulse through phases. Let it complete naturally to log the session.
+
+**Progress** — press `p`; after completing a breathing session, verify:
+- Streak shows 1
+- Heatmap shows today's cell filled
+- "First Step" badge shows as earned
+
+### 5. Lint and Tests
+
+```bash
+cd stillwater-tui
+
+# Lint
+uv run ruff check src/ tests/
+
+# Tests (17 total)
+uv run pytest tests/ -v
+```
+
+### 6. Troubleshooting
+
+**No audio** — audio files are not bundled. The app runs without them; controls still work. To add audio, place MP3 files in `~/.local/share/stillwater/audio/` (see `stillwater-tui/README.md` for filenames).
+
+**Reset progress data** — delete the SQLite database:
+```bash
+rm ~/.local/share/stillwater/stillwater.db
+```
+The database is re-created with seeded sessions on next launch.
+
+**`uv: command not found`** — install uv: `curl -LsSf https://astral.sh/uv/install.sh | sh`, then open a new terminal.

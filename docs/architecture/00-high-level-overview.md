@@ -1,8 +1,21 @@
 # Stillwater — High-Level Architecture
 
-System overview of the Stillwater meditation app. The entire app runs in the browser — no server, no database.
+The repo contains two independent implementations of Stillwater, both living on `main`:
 
-## System Architecture
+| Directory | Type | Stack |
+|-----------|------|-------|
+| `frontend/` | Browser app | Vite + React 19 + TypeScript + Tailwind v4 |
+| `stillwater-tui/` | Terminal app | Python 3.12 + Textual 8 + pygame + aiosqlite |
+
+Neither implementation requires a server. See [stillwater-tui/README.md](../../stillwater-tui/README.md) for the TUI architecture; the rest of this document covers the React frontend.
+
+---
+
+## React Frontend — System Architecture
+
+The entire app runs in the browser — no server, no database.
+
+## Browser Architecture
 
 ```mermaid
 graph TD
