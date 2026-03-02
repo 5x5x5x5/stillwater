@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import type { HeatmapEntry } from '../../api/progress';
+import type { HeatmapEntry } from '../../lib/storage';
 
 interface HeatmapProps {
   data: HeatmapEntry[];

@@ -47,7 +47,7 @@ const CATEGORY_CONFIG = [
 
 export default function HomePage() {
   const navigate = useNavigate();
-  const { user } = useAuthStore();
+  const { displayName } = useAuthStore();
   const { dailyPick, sessions, isLoading, fetchDailyPick, fetchSessions } = useSessionStore();
   const { play } = usePlayerStore();
 
@@ -82,7 +82,7 @@ export default function HomePage() {
       >
         <p className="text-offwhite/50 text-sm">{greeting()},</p>
         <h1 className="font-serif text-3xl text-offwhite">
-          {user?.display_name ?? 'Friend'}
+          {displayName ?? 'Friend'}
         </h1>
       </motion.div>
 

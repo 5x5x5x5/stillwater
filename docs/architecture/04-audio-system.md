@@ -60,7 +60,7 @@ stateDiagram-v2
     Paused --> Stopped: stop()
 
     Ended --> LogMeditation: onComplete callback
-    LogMeditation --> Idle: POST /api/progress/log
+    LogMeditation --> Idle: storage.appendLog()
 
     state Playing {
         [*] --> RAFLoop
@@ -172,17 +172,17 @@ flowchart LR
 sequenceDiagram
     participant AE as useAudioEngine
     participant PB as PlayerBar
-    participant API as API Client
-    participant BE as Backend
+    participant PS as progressStore
+    participant ST as storage.ts
 
     AE->>AE: howl.onend fires
     AE->>AE: completedRef check (prevent duplicates)
     AE->>AE: stop() + setProgress(1, duration)
     AE->>PB: onComplete callback
 
-    PB->>API: POST /api/progress/log
-    Note right of PB: {session_id, duration_seconds,<br/>completed: true, session_type: category}
-    API->>BE: Log meditation
-    BE->>BE: update_streak + check_badges
-    BE-->>API: 201 Created
+    PB->>PS: logMeditation({session_id, duration_seconds, completed: true, session_type})
+    PS->>ST: appendLog(entry)
+    ST->>ST: recalculateStreak() + checkAndAwardBadges()
+    ST-->>PS: Updated logs written to localStorage
+    PS->>PS: Refresh summary / streak / heatmap / badges state
 ```

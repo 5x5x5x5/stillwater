@@ -62,7 +62,7 @@ stateDiagram-v2
     }
 
     state Complete {
-        [*] --> LogMeditation: POST /api/progress/log
+        [*] --> LogMeditation: storage.appendLog()
         LogMeditation --> ShowSummary: cycles completed + duration
     }
 ```
@@ -74,7 +74,7 @@ flowchart TD
     TICK[requestAnimationFrame tick] --> ELAPSED["elapsed = performance.now() - startTime - pauseOffset"]
 
     ELAPSED --> DONE{elapsed >= totalDuration?}
-    DONE -->|Yes| COMPLETE[isComplete = true<br/>logMeditation + onComplete]
+    DONE -->|Yes| COMPLETE[isComplete = true<br/>storage.appendLog() + onComplete]
 
     DONE -->|No| CYCLE["cycleDuration = sum(phases[*].duration)<br/>cycleElapsed = elapsed % cycleDuration<br/>cycleCount = floor(elapsed / cycleDuration)"]
 
@@ -152,7 +152,7 @@ sequenceDiagram
     participant BE as BreathingExercise
     participant ENG as useBreathingEngine
     participant BC as BreathingCircle
-    participant API as Backend
+    participant ST as storage.ts
 
     U->>BE: Select pattern + duration
     BE->>ENG: Initialize with pattern, durationMinutes
@@ -177,8 +177,8 @@ sequenceDiagram
     end
 
     ENG->>ENG: elapsed >= total duration
-    ENG->>API: POST /api/progress/log<br/>{duration_seconds, session_type, completed: true}
-    API-->>ENG: 201 Created
+    ENG->>ST: appendLog({duration_seconds, session_type: 'breathing', completed: true})
+    ST->>ST: recalculateStreak() + checkAndAwardBadges()
     ENG->>BE: onComplete()
     BE->>U: Show completion summary<br/>(cycles + duration)
     U->>BE: Click "Done"

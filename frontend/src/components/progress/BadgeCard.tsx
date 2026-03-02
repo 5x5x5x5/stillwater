@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import type { Badge } from '../../api/progress';
+import type { Badge } from '../../lib/storage';
 
 interface BadgeCardProps {
   badge: Badge;

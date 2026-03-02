@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import type { BreathingPattern, BreathingPhase } from '../data/breathingPatterns';
-import { progressApi } from '../api/progress';
+import { appendLog } from '../lib/storage';
 
 interface BreathingEngineState {
   currentPhaseIndex: number;
@@ -109,15 +109,12 @@ export function useBreathingEngine({
         }));
 
         // Log the completed meditation
-        progressApi
-          .logMeditation({
-            duration_seconds: durationMinutes * 60,
-            completed: true,
-            session_type: 'breathing',
-          })
-          .catch(() => {
-            // Non-critical
-          });
+        appendLog({
+          session_id: null,
+          duration_seconds: durationMinutes * 60,
+          completed: true,
+          session_type: 'breathing',
+        });
 
         onComplete?.();
         return;
